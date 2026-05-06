@@ -37,7 +37,7 @@ export function Hero() {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-6 text-sm text-brand-muted">
-            <p>✓ 16 questions</p>
+            <p>✓ 15 questions</p>
             <p>✓ 5 minutes</p>
             <p>✓ Completely free</p>
           </div>

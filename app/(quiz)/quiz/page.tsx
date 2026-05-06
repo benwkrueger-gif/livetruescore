@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useReducer, useRef, useState } from "react";
+import { useReducer, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -45,7 +45,7 @@ type Action =
 
 const initialState: LocalQuizState = {
   currentStep: 0,
-  totalSteps: 16,
+  totalSteps: 15,
   arenaScores: {},
   valuesSelected: [],
   valuesRanked: [],
@@ -96,7 +96,7 @@ function reducer(state: LocalQuizState, action: Action): LocalQuizState {
     case "TOGGLE_NEWSLETTER":
       return { ...state, newsletterOptIn: !state.newsletterOptIn };
     case "NEXT_STEP":
-      return { ...state, currentStep: Math.min(17, state.currentStep + 1) };
+      return { ...state, currentStep: Math.min(16, state.currentStep + 1) };
     case "PREV_STEP":
       return { ...state, currentStep: Math.max(0, state.currentStep - 1) };
     case "SET_STEP":
@@ -153,11 +153,6 @@ export default function QuizPage() {
 
   const sensors = useSensors(useSensor(PointerSensor));
 
-  const rankedTop3 = useMemo(
-    () => (state.valuesRanked.length ? state.valuesRanked.slice(0, 3) : []),
-    [state.valuesRanked]
-  );
-
   const goNext = () => {
     directionRef.current = 1;
     dispatch({ type: "NEXT_STEP" });
@@ -188,14 +183,6 @@ export default function QuizPage() {
     dispatch({ type: "SET_VALUES_RANKED", value: ranked });
   };
 
-  const updateTop3Order = (nextTop3: RankedValue[]) => {
-    if (!state.valuesRanked.length) return;
-    const fourth = state.valuesRanked[3];
-    const resequenced = nextTop3.map((item, index) => ({ ...item, rank: (index + 1) as 1 | 2 | 3 }));
-    const next = fourth ? [...resequenced, { ...fourth, rank: 4 }] : resequenced;
-    dispatch({ type: "SET_VALUES_RANKED", value: next as RankedValue[] });
-  };
-
   const reorderRankedValues = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -208,21 +195,6 @@ export default function QuizPage() {
       rank: (index + 1) as 1 | 2 | 3 | 4
     }));
     dispatch({ type: "SET_VALUES_RANKED", value: moved });
-  };
-
-  const reorderTop3 = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const top3 = state.valuesRanked.slice(0, 3);
-    const oldIndex = top3.findIndex((item) => item.key === active.id);
-    const newIndex = top3.findIndex((item) => item.key === over.id);
-    if (oldIndex < 0 || newIndex < 0) return;
-
-    const moved = arrayMove(top3, oldIndex, newIndex).map((item, index) => ({
-      ...item,
-      rank: (index + 1) as 1 | 2 | 3
-    })) as RankedValue[];
-    updateTop3Order(moved);
   };
 
   const handleSubmit = async () => {
@@ -295,7 +267,7 @@ export default function QuizPage() {
             There are no right answers here, only your answers. The score you get at the end is only as
             accurate as the honesty you bring to the next 5 minutes.
           </p>
-          <p className="mt-4 text-sm text-brand-muted">16 questions · Takes about 5 minutes</p>
+          <p className="mt-4 text-sm text-brand-muted">15 questions · Takes about 5 minutes</p>
           <Button size="lg" fullWidth className="mt-8" onClick={() => setStep(1)} showArrow>
             Let&apos;s find out
           </Button>
@@ -468,29 +440,6 @@ export default function QuizPage() {
 
     if (state.currentStep === 12) {
       return (
-        <div className="rounded-3xl border border-brand-rule bg-white p-6 shadow-soft md:p-8">
-          <h2 className="text-balance font-display text-[30px] leading-tight text-brand-midnight">
-            You said these matter most to you.
-          </h2>
-          <p className="mt-2 text-brand-muted">Does this order feel right? Adjust if needed.</p>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={reorderTop3}>
-            <SortableContext items={rankedTop3.map((item) => item.key)} strategy={verticalListSortingStrategy}>
-              <motion.div layout className="mt-6 space-y-3">
-                {rankedTop3.map((item, index) => (
-                  <SortableRankCard key={item.key} id={item.key} label={item.label} rank={index + 1} />
-                ))}
-              </motion.div>
-            </SortableContext>
-          </DndContext>
-          <Button size="lg" fullWidth className="mt-6" onClick={goNext} showArrow>
-            Looks right
-          </Button>
-        </div>
-      );
-    }
-
-    if (state.currentStep === 13) {
-      return (
         <QuestionSelect
           question="Which of these feels most true for you right now?"
           note="There's no right answer. Be honest with yourself."
@@ -511,7 +460,7 @@ export default function QuizPage() {
       );
     }
 
-    if (state.currentStep === 14) {
+    if (state.currentStep === 13) {
       const categoryOptions = [
         { key: "adventure_travel", label: "✈️ Adventure & Travel" },
         { key: "creative_pursuit", label: "🎨 Creative pursuit" },
@@ -614,7 +563,7 @@ export default function QuizPage() {
       );
     }
 
-    if (state.currentStep === 15) {
+    if (state.currentStep === 14) {
       return (
         <QuestionSelect
           question="When you imagine the version of your life you're 'supposed' to be living, whose voice is loudest in defining that?"
@@ -640,7 +589,7 @@ export default function QuizPage() {
       );
     }
 
-    if (state.currentStep === 16) {
+    if (state.currentStep === 15) {
       return (
         <div>
           <h2 className="text-balance font-display text-[30px] leading-tight text-brand-midnight">
@@ -667,20 +616,18 @@ export default function QuizPage() {
     return (
       <div className="min-h-screen bg-brand-midnight px-5 py-12 text-white">
         <div className="mx-auto w-full max-w-lg text-center">
-          <div className="relative mx-auto flex h-20 w-20 items-center justify-center">
-            <motion.div
-              className="absolute inset-0 rounded-full border-2 border-brand-amber/50"
-              animate={{ scale: [1, 1.8], opacity: [0.6, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+          <div className="relative mx-auto h-20 w-20">
+            <div
+              style={{
+                width: "80px",
+                height: "80px",
+                borderRadius: "50%",
+                border: "3px solid rgba(212, 98, 42, 0.15)",
+                borderTopColor: "#D4622A",
+                borderRightColor: "#D4622A",
+                animation: "spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite"
+              }}
             />
-            <motion.div
-              className="absolute inset-0 rounded-full border-2 border-brand-amber/30"
-              animate={{ scale: [1, 1.8], opacity: [0.6, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeOut", delay: 0.75 }}
-            />
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-amber">
-              <span className="text-2xl font-bold text-white">✓</span>
-            </div>
           </div>
           <h2 className="mt-8 font-display text-4xl">Your Life Alignment Score is ready.</h2>
           <p className="mx-auto mt-4 max-w-md leading-relaxed text-white/70">
@@ -752,7 +699,7 @@ export default function QuizPage() {
     );
   })();
 
-  if (state.currentStep === 17) {
+  if (state.currentStep === 16) {
     return (
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
