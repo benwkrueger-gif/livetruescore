@@ -4,6 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    console.log("ENV CHECK - URL present:", !!supabaseUrl);
+    console.log("ENV CHECK - URL value:", supabaseUrl?.slice(0, 30));
+    console.log("ENV CHECK - Service key present:", !!serviceKey);
     console.log("Submit quiz called with payload:", JSON.stringify(body).slice(0, 200));
     const supabase = await createClient();
 

@@ -9,6 +9,7 @@ interface QuestionSliderProps {
   value: number | null;
   onChange: (value: number) => void;
   onNext: () => void;
+  nextLabel?: string;
 }
 
 export function QuestionSlider({
@@ -17,7 +18,8 @@ export function QuestionSlider({
   scaleMax,
   value,
   onChange,
-  onNext
+  onNext,
+  nextLabel = "Next"
 }: QuestionSliderProps) {
   const sliderValue = value ?? 5;
   const progressPercent = ((sliderValue - 1) / 9) * 100;
@@ -50,7 +52,7 @@ export function QuestionSlider({
         </div>
       </div>
       <Button size="lg" fullWidth className="mt-8" onClick={onNext} disabled={value === null} showArrow>
-        Next
+        {nextLabel}
       </Button>
     </div>
   );

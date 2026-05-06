@@ -286,6 +286,7 @@ export default function QuizPage() {
           value={value}
           onChange={(next) => dispatch({ type: "SET_ARENA_SCORE", key: arena.key, value: next })}
           onNext={goNext}
+          nextLabel="Next"
         />
       );
     }
