@@ -1,14 +1,13 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle, Lock, X } from "lucide-react";
+import { CheckCircle, Lock } from "lucide-react";
 import { ALIGNMENT_TYPES } from "@/lib/constants/alignmentTypes";
 import { Button } from "@/components/ui/Button";
-import { getFirstExperiment } from "@/lib/scoring/experiments";
 import { getResultNarrative } from "@/lib/scoring/narratives";
 import { cn } from "@/lib/utils";
-import type { ArenaKey, GapItem } from "@/types/quiz";
+import type { GapItem } from "@/types/quiz";
 
 interface ResultRow {
   id: string;
@@ -44,18 +43,13 @@ export function ResultScreen({ result }: { result: ResultRow }) {
   const narrative = getResultNarrative(typeData.key, {
     firstName,
     topArenaLabel: topGap?.label ?? "your biggest gap",
-    futureVision: result.future_vision
+    futureVision: ""
   });
-  const narrativeParts = narrative.split("\n\n");
-  const experiment = getFirstExperiment((topGap?.arena ?? "freedom") as ArenaKey);
+  const futureVision = result.future_vision?.trim() ?? "";
   const influenceLabel = influenceLabels[result.influence_source ?? ""] ?? "multiple outside voices";
 
   const [scoreDisplay, setScoreDisplay] = useState(0);
-  const [showExperiment, setShowExperiment] = useState(false);
-  const [showShareModal, setShowShareModal] = useState(false);
   const [waitlistJoined, setWaitlistJoined] = useState(false);
-  const [shareCopied, setShareCopied] = useState(false);
-  const experimentRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const target = Math.max(0, Math.min(100, score));
@@ -78,16 +72,6 @@ export function ResultScreen({ result }: { result: ResultRow }) {
 
     return () => window.clearInterval(first);
   }, [score]);
-
-  const shareText = useMemo(
-    () =>
-      `My Life Alignment Score: ${score}/100
-Type: ${typeData.name}
-Biggest gap: ${topGap?.label ?? "Unknown"}
-
-What is yours? livetruescore.vercel.app`,
-    [score, typeData.name, topGap?.label]
-  );
 
   return (
     <div className="min-h-screen bg-brand-cream">
@@ -177,9 +161,19 @@ What is yours? livetruescore.vercel.app`,
             className="mb-8 rounded-3xl bg-brand-midnight p-8"
           >
             <span className="mb-4 block text-xs uppercase tracking-widest text-white/40">YOUR ALIGNMENT READING</span>
-            <p className="font-display text-xl font-normal italic leading-relaxed text-white">{narrativeParts[0]}</p>
-            {narrativeParts[1] ? (
-              <p className="mt-4 text-base leading-relaxed text-white/60">{narrativeParts[1]}</p>
+            <p className="font-display text-xl font-normal italic leading-relaxed text-white">{narrative}</p>
+            {futureVision ? (
+              <div className="mt-6">
+                <span className="mb-2 block text-xs uppercase tracking-wider text-white/40">
+                  YOU TOLD US YOU WANT THIS TO BE TRUE IN A YEAR:
+                </span>
+                <blockquote className="mb-4 rounded-xl bg-white/10 px-5 py-4 font-display text-lg font-normal italic leading-relaxed text-white">
+                  {futureVision}
+                </blockquote>
+                <p className="text-sm leading-relaxed text-white/60">
+                  That is exactly what closing your gaps points toward.
+                </p>
+              </div>
             ) : null}
           </motion.section>
 
@@ -241,18 +235,48 @@ What is yours? livetruescore.vercel.app`,
               ))}
 
               <div className="relative z-10 mx-auto my-6 max-w-sm rounded-3xl border border-brand-amber/20 bg-white p-8 text-center shadow-strong">
-                <Lock className="mx-auto mb-4 h-8 w-8 text-brand-amber" />
-                <h4 className="mb-3 text-balance font-display text-2xl font-normal text-brand-midnight">
+                <Lock className="mx-auto mb-4 h-7 w-7 text-brand-amber" />
+                <h4 className="mb-2 text-balance font-display text-2xl font-normal text-brand-midnight">
                   Unlock your full report
                 </h4>
-                <p className="mb-4 text-balance text-sm leading-relaxed text-brand-muted">
-                  LiveTrue is a living practice that walks alongside you as you close the gap. Weekly
-                  experiments that build on each other, monthly deeper reflections, and your score evolving as
-                  your life does. Not a course. Not coaching. A practice.
+                <p className="mb-5 text-sm text-brand-muted">Join the waitlist to get instant access.</p>
+                <ul className="mb-5 space-y-2.5 text-left">
+                  <li className="flex items-start gap-2.5">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-amber" />
+                    <span className="text-sm leading-snug text-brand-ink-2">
+                      Your complete 8-arena breakdown with written analysis
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-amber" />
+                    <span className="text-sm leading-snug text-brand-ink-2">
+                      The root cause behind your specific gaps
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-amber" />
+                    <span className="text-sm leading-snug text-brand-ink-2">Your personal influence audit</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-amber" />
+                    <span className="text-sm leading-snug text-brand-ink-2">
+                      3 experiments calibrated to your exact value profile
+                      <span className="ml-2 inline-block rounded-full bg-brand-amber-light px-2 py-0.5 text-xs font-semibold text-brand-amber">
+                        Most wanted
+                      </span>
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-amber" />
+                    <span className="text-sm leading-snug text-brand-ink-2">
+                      Your Personal Alignment Path to get where you want to be
+                    </span>
+                  </li>
+                </ul>
+                <p className="mb-5 text-center text-xs italic text-brand-muted">
+                  Every experiment is specific to your alignment type and top gap, not generic advice.
                 </p>
-                <p className="mb-4 text-sm font-semibold text-brand-midnight">
-                  Founding member rate: $69/year - limited spots
-                </p>
+                <hr className="mb-5 border-brand-rule" />
                 {!waitlistJoined ? (
                   <Button
                     fullWidth
@@ -262,127 +286,23 @@ What is yours? livetruescore.vercel.app`,
                       setWaitlistJoined(true);
                     }}
                   >
-                    Join the Founding Member Waitlist
+                    Yes, put me on the waitlist
                   </Button>
                 ) : (
                   <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-                    <CheckCircle className="mx-auto mb-2 h-6 w-6 text-brand-sage" />
+                    <CheckCircle className="mx-auto mb-2 h-7 w-7 text-brand-sage" />
                     <p className="text-sm font-medium text-brand-sage">You are on the list.</p>
-                    <p className="mt-1 text-xs text-brand-muted">We will reach out before founding spots open.</p>
+                    <p className="mx-auto mt-1 max-w-[220px] text-xs leading-relaxed text-brand-muted">
+                      Check your email for the full report and updates as we prepare to launch LiveTrue.
+                    </p>
                   </motion.div>
                 )}
                 <p className="mt-3 text-xs text-brand-muted">
-                  No payment now. We will contact you with founding member details before we launch.
+                  No payment required. Founding member offer details to follow.
                 </p>
               </div>
             </div>
           </motion.section>
-
-          <motion.section
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 5 }}
-            className="mb-8 border-t border-brand-rule pt-8"
-          >
-            <div className="rounded-2xl border border-brand-rule bg-brand-cream-dark p-6 text-center">
-              <h4 className="mb-2 text-base font-semibold text-brand-midnight">Not ready to commit?</h4>
-              <p className="mb-5 text-sm text-brand-muted">
-                Share your score and unlock your first personalized experiment free - specific to your biggest
-                gap, immediately actionable.
-              </p>
-              <Button variant="secondary" fullWidth onClick={() => setShowShareModal(true)}>
-                Share my score - unlock my experiment
-              </Button>
-            </div>
-          </motion.section>
-
-          <AnimatePresence>
-            {showShareModal ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center bg-brand-midnight/60 px-6 backdrop-blur-sm"
-              >
-                <div className="relative w-full max-w-sm rounded-3xl bg-white p-8 shadow-strong">
-                  <button
-                    type="button"
-                    className="absolute right-4 top-4 text-brand-muted"
-                    onClick={() => setShowShareModal(false)}
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                  <h4 className="mb-6 font-display text-2xl font-normal text-brand-midnight">Share your score</h4>
-                  <div className="relative mb-6 overflow-hidden rounded-2xl bg-brand-midnight p-5 text-center">
-                    <p className="pointer-events-none absolute -right-4 -top-4 select-none font-display text-[120px] leading-none text-white/[0.04]">
-                      {score}
-                    </p>
-                    <p className="mb-3 text-sm italic text-white/50">LiveTrue</p>
-                    <p className="font-display text-5xl font-normal leading-none text-brand-amber">{score}</p>
-                    <p className="mb-3 mt-1 text-xs text-white/50">{scoreLabel}</p>
-                    <p className="text-base italic text-white">I am a {typeData.name}</p>
-                    <p className="mt-1 text-xs text-white/40">
-                      Biggest gap: {topGap?.emoji} {topGap?.label}
-                    </p>
-                  </div>
-                  <textarea
-                    readOnly
-                    value={shareText}
-                    onClick={(event) => event.currentTarget.select()}
-                    className="mb-4 w-full rounded-xl bg-brand-cream p-4 text-sm leading-relaxed text-brand-muted outline-none"
-                  />
-                  <Button
-                    fullWidth
-                    className="mb-3"
-                    onClick={async () => {
-                      await navigator.clipboard.writeText(shareText);
-                      setShareCopied(true);
-                      window.setTimeout(() => setShareCopied(false), 2000);
-                    }}
-                  >
-                    {shareCopied ? "Copied!" : "Copy share text"}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    fullWidth
-                    onClick={() => {
-                      setShowShareModal(false);
-                      setShowExperiment(true);
-                      setTimeout(() => experimentRef.current?.scrollIntoView({ behavior: "smooth" }), 80);
-                    }}
-                  >
-                    Done sharing - show me my experiment
-                  </Button>
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-
-          <AnimatePresence>
-            {showExperiment ? (
-              <motion.section
-                ref={experimentRef}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-8 mt-8"
-              >
-                <span className="mb-4 block text-xs uppercase tracking-widest text-brand-amber">YOUR FIRST EXPERIMENT</span>
-                <p className="mb-4 text-sm text-brand-muted">
-                  Specific to your biggest gap in {topGap?.label ?? "your top arena"}.
-                </p>
-                <div className="rounded-2xl bg-brand-midnight p-7">
-                  <p className="mb-3 text-xs uppercase tracking-wider text-white/40">
-                    {topGap?.emoji} {topGap?.label}
-                  </p>
-                  <h4 className="mb-4 font-display text-2xl font-normal italic text-white">{experiment.title}</h4>
-                  <p className="text-base leading-relaxed text-white/75">{experiment.description}</p>
-                </div>
-                <p className="mt-4 text-center text-xs text-brand-muted">
-                  This is one of the experiments included in the full LiveTrue program.
-                </p>
-              </motion.section>
-            ) : null}
-          </AnimatePresence>
 
           {result.newsletter_opt_in ? (
             <section className="mt-6 text-center">
