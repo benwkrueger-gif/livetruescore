@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { calculateScore } from "@/lib/scoring/algorithm";
+import { assignAlignmentType } from "@/lib/scoring/types";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    console.log("ENV CHECK - URL present:", !!supabaseUrl);
-    console.log("ENV CHECK - URL value:", supabaseUrl?.slice(0, 30));
-    console.log("ENV CHECK - Service key present:", !!serviceKey);
-    console.log("Submit quiz called with payload:", JSON.stringify(body).slice(0, 200));
     const supabase = await createClient();
+    const { score, scoreLabel, topGaps, importanceWeights } = calculateScore(body);
+    const typeKey = assignAlignmentType(body, topGaps);
 
     const { data, error } = await supabase
       .from("quiz_responses")
@@ -35,11 +33,11 @@ export async function POST(request: Request) {
         deferred_dream_other: body.deferredDreamOther ?? null,
         influence_source: body.influenceSource ?? null,
         future_vision: body.futureVision ?? null,
-        alignment_score: null,
-        alignment_type: null,
-        top_gaps: null,
-        importance_weights: null,
-        score_label: null,
+        alignment_score: score,
+        alignment_type: typeKey,
+        top_gaps: topGaps,
+        importance_weights: importanceWeights,
+        score_label: scoreLabel,
         utm_source: body.utmSource ?? null,
         utm_medium: body.utmMedium ?? null,
         utm_campaign: body.utmCampaign ?? null,
@@ -53,8 +51,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          error: error?.message || "Unknown error",
-          details: JSON.stringify(error)
+          error: "Submission failed"
         },
         { status: 500 }
       );
@@ -69,8 +66,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-        details: JSON.stringify(error)
+        error: "Submission failed"
       },
       { status: 500 }
     );
