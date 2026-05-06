@@ -5,15 +5,16 @@ import { motion } from "framer-motion";
 interface ProgressBarProps {
   current: number;
   total: number;
+  label?: string;
 }
 
-export function ProgressBar({ current, total }: ProgressBarProps) {
+export function ProgressBar({ current, total, label }: ProgressBarProps) {
   const progress = total > 0 ? Math.max(0, Math.min(100, (current / total) * 100)) : 0;
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-end text-sm text-brand-muted">
-        {current} of {total}
+        {label ?? `${current} of ${total}`}
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-brand-rule">
         <motion.div
