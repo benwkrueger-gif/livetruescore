@@ -8,13 +8,13 @@ const STEPS = [
     step: "01",
     Icon: Search,
     title: "Rate your life arenas",
-    body: "8 quick ratings across the areas that matter — work, relationships, freedom, contribution, and more."
+    body: "8 quick ratings across the areas that matter - work, relationships, freedom, contribution, and more."
   },
   {
     step: "02",
     Icon: Heart,
     title: "Surface what actually matters to you",
-    body: "Select and rank your core values. Your score measures alignment to YOUR values — not some external template."
+    body: "Select and rank your core values. Your score measures alignment to YOUR values - not some external template."
   },
   {
     step: "03",

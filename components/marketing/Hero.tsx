@@ -48,13 +48,14 @@ export function Hero() {
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           className="mx-auto w-full max-w-md lg:rotate-1"
         >
-          <div
-            className="rounded-3xl border border-brand-rule/70 bg-white p-8 shadow-strong"
-            style={{
-              boxShadow:
-                "0 32px 80px rgba(212,98,42,0.08), 0 8px 32px rgba(0,0,0,0.08)"
-            }}
-          >
+          <Link href="/quiz" className="block">
+            <div
+              className="cursor-pointer rounded-3xl border border-brand-rule/70 bg-white p-8 shadow-strong transition-all duration-300 hover:-translate-y-1 hover:shadow-strong"
+              style={{
+                boxShadow:
+                  "0 32px 80px rgba(212,98,42,0.08), 0 8px 32px rgba(0,0,0,0.08)"
+              }}
+            >
             <p className="text-xs uppercase tracking-[0.16em] text-brand-muted">LIFE ALIGNMENT SCORE</p>
             <p className="mt-3 font-display text-[96px] leading-none text-brand-amber">68</p>
             <span className="inline-flex rounded-full bg-brand-cream-dark px-3 py-1 text-sm text-brand-ink-2">
@@ -85,10 +86,12 @@ export function Hero() {
               ))}
             </div>
 
-            <Button size="sm" fullWidth className="pointer-events-none mt-7">
-              See your full report →
-            </Button>
-          </div>
+              <Button size="sm" fullWidth className="pointer-events-none mt-7">
+                See your full report →
+              </Button>
+              <p className="mt-3 text-center text-xs text-brand-muted">↑ This could be your result</p>
+            </div>
+          </Link>
         </motion.aside>
       </div>
     </motion.section>

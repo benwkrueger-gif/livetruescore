@@ -2,20 +2,21 @@
 
 import { motion } from "framer-motion";
 
-const TESTIMONIALS = [
-  // TODO: Replace placeholder quotes with real testimonials after launch.
+const RESEARCH_STATS = [
   {
-    quote: "I already knew something was off. Seeing it in a score made it impossible to ignore.",
-    author: "James, 34"
+    stat: "80%",
+    label: "of people report feeling their life doesn't fully reflect what matters most to them",
+    source: "- APA Stress in America Report"
   },
   {
-    quote: "The Goalpost Mover description was so accurate it was uncomfortable.",
-    author: "Sarah, 41"
+    stat: "#1",
+    label: "regret of the dying is not having lived more true to themselves",
+    source: "- Bronnie Ware, The Top 5 Regrets of the Dying"
   },
   {
-    quote:
-      "I've taken every personality test out there. This one actually showed me where to focus.",
-    author: "Marcus, 38"
+    stat: "2x",
+    label: "more likely to report high life satisfaction when living aligned with personal values",
+    source: "- Journal of Personality and Social Psychology"
   }
 ];
 
@@ -26,32 +27,28 @@ export function SocialProof() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="relative w-full bg-brand-cream px-6 py-20 md:px-10"
+      className="w-full bg-brand-cream px-6 py-16 md:px-10"
     >
-      <div className="mx-auto grid max-w-6xl grid-flow-col auto-cols-[88%] gap-6 overflow-x-auto pb-2 md:grid-flow-row md:auto-cols-auto md:grid-cols-3 md:overflow-visible">
-        {TESTIMONIALS.map((item) => {
-          const initial = item.author.charAt(0);
-
-          return (
+      <div className="mx-auto max-w-6xl">
+        <h3 className="text-center text-sm uppercase tracking-widest text-brand-muted">
+          GROUNDED IN RESEARCH
+        </h3>
+        <div className="mt-6 grid gap-6 md:grid-cols-3">
+          {RESEARCH_STATS.map((item) => (
             <article
-              key={item.author}
-              className="rounded-2xl border border-brand-rule/50 bg-white p-6 shadow-soft"
+              key={item.stat}
+              className="rounded-2xl border border-brand-rule bg-white p-6 text-center shadow-soft"
             >
-              <p className="font-display text-lg italic leading-relaxed text-brand-midnight">
-                &ldquo;{item.quote}&rdquo;
-              </p>
-              <div className="mt-4 flex items-center gap-3">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-amber-light text-sm font-semibold text-brand-amber">
-                  {initial}
-                </span>
-                <div>
-                  <p className="text-sm font-medium text-brand-ink">{item.author.split(",")[0]}</p>
-                  <p className="text-xs text-brand-muted">{item.author.split(",")[1]?.trim()} years old</p>
-                </div>
-              </div>
+              <p className="font-display text-4xl text-brand-amber">{item.stat}</p>
+              <p className="mt-3 text-brand-ink-2">{item.label}</p>
+              <p className="mt-3 text-xs text-brand-muted">{item.source}</p>
             </article>
-          );
-        })}
+          ))}
+        </div>
+        <p className="mt-6 text-center text-xs text-brand-muted">
+          Results vary. The Life Alignment Score is a self-reflection tool, not a clinical
+          assessment.
+        </p>
       </div>
     </motion.section>
   );
