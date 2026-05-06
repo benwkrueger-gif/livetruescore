@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { calculateScore } from "@/lib/scoring/algorithm";
+import { generateAiNarrative } from "@/lib/scoring/generateNarrative";
 import { assignAlignmentType } from "@/lib/scoring/types";
 
 export async function POST(request: Request) {
@@ -9,6 +10,10 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     const { score, scoreLabel, topGaps, importanceWeights } = calculateScore(body);
     const typeKey = assignAlignmentType(body, topGaps);
+    const aiNarrative = await generateAiNarrative(body, topGaps);
+    if (aiNarrative === null) {
+      console.warn("AI narrative generation failed, using null fallback");
+    }
 
     const { data, error } = await supabase
       .from("quiz_responses")
@@ -38,6 +43,7 @@ export async function POST(request: Request) {
         top_gaps: topGaps,
         importance_weights: importanceWeights,
         score_label: scoreLabel,
+        ai_narrative: aiNarrative ?? null,
         utm_source: body.utmSource ?? null,
         utm_medium: body.utmMedium ?? null,
         utm_campaign: body.utmCampaign ?? null,

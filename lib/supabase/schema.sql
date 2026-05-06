@@ -52,3 +52,7 @@ CREATE INDEX idx_quiz_responses_email ON quiz_responses(email);
 CREATE INDEX idx_quiz_responses_created_at ON quiz_responses(created_at DESC);
 CREATE INDEX idx_quiz_responses_alignment_type ON quiz_responses(alignment_type);
 */
+
+-- Run this in Supabase SQL Editor:
+-- ALTER TABLE quiz_responses
+--   ADD COLUMN IF NOT EXISTS ai_narrative TEXT;

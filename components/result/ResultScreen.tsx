@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle, Lock } from "lucide-react";
+import { CheckCircle, Lock, Share2 } from "lucide-react";
 import { ALIGNMENT_TYPES } from "@/lib/constants/alignmentTypes";
 import { Button } from "@/components/ui/Button";
 import { getResultNarrative } from "@/lib/scoring/narratives";
@@ -22,6 +22,7 @@ interface ResultRow {
   envy_signal: string | null;
   deferred_dream_category: string | null;
   email: string | null;
+  ai_narrative: string | null;
 }
 
 const influenceLabels: Record<string, string> = {
@@ -40,16 +41,24 @@ export function ResultScreen({ result }: { result: ResultRow }) {
   const topGap = topGaps[0];
   const typeData = ALIGNMENT_TYPES.find((item) => item.key === result.alignment_type) ?? ALIGNMENT_TYPES[4];
   const firstName = result.first_name || "Friend";
-  const narrative = getResultNarrative(typeData.key, {
-    firstName,
-    topArenaLabel: topGap?.label ?? "your biggest gap",
-    futureVision: ""
-  });
   const futureVision = result.future_vision?.trim() ?? "";
+  const narrativeText =
+    result.ai_narrative ||
+    getResultNarrative(typeData.key, {
+      firstName,
+      topArenaLabel: topGap?.label ?? "your biggest gap",
+      futureVision
+    });
+  const futureVisionFirstFiveWords = futureVision.split(/\s+/).slice(0, 5).join(" ").toLowerCase();
+  const shouldShowFutureVisionQuote =
+    !!futureVision &&
+    (!futureVisionFirstFiveWords ||
+      !narrativeText.toLowerCase().includes(futureVisionFirstFiveWords));
   const influenceLabel = influenceLabels[result.influence_source ?? ""] ?? "multiple outside voices";
 
   const [scoreDisplay, setScoreDisplay] = useState(0);
   const [waitlistJoined, setWaitlistJoined] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
 
   useEffect(() => {
     const target = Math.max(0, Math.min(100, score));
@@ -161,8 +170,16 @@ export function ResultScreen({ result }: { result: ResultRow }) {
             className="mb-8 rounded-3xl bg-brand-midnight p-8"
           >
             <span className="mb-4 block text-xs uppercase tracking-widest text-white/40">YOUR ALIGNMENT READING</span>
-            <p className="font-display text-xl font-normal italic leading-relaxed text-white">{narrative}</p>
-            {futureVision ? (
+            {(() => {
+              const [firstChunk, secondChunk] = narrativeText.split("\n\n");
+              return (
+                <>
+                  <p className="font-display text-xl font-normal italic leading-relaxed text-white">{firstChunk}</p>
+                  {secondChunk ? <p className="mt-4 text-base leading-relaxed text-white/70">{secondChunk}</p> : null}
+                </>
+              );
+            })()}
+            {shouldShowFutureVisionQuote ? (
               <div className="mt-6">
                 <span className="mb-2 block text-xs uppercase tracking-wider text-white/40">
                   YOU TOLD US YOU WANT THIS TO BE TRUE IN A YEAR:
@@ -175,6 +192,66 @@ export function ResultScreen({ result }: { result: ResultRow }) {
                 </p>
               </div>
             ) : null}
+          </motion.section>
+
+          <motion.section
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 4.0 }}
+            className="mb-8"
+          >
+            <div className="relative mx-auto max-w-xs overflow-hidden rounded-2xl bg-brand-midnight p-6 text-center">
+              <div>
+                <p className="pointer-events-none absolute -bottom-8 -right-6 select-none font-display text-[180px] leading-none text-white/[0.04]">
+                  {score}
+                </p>
+                <div className="mb-4 flex items-center justify-between">
+                  <span className="text-sm italic text-white/40">LiveTrue</span>
+                  <span className="h-2 w-2 rounded-full bg-brand-amber" />
+                </div>
+                <p className="font-display text-6xl font-normal leading-none text-brand-amber">{score}</p>
+                <p className="mb-4 mt-1 text-xs text-white/50">{scoreLabel}</p>
+                <div className="mb-4 border-t border-white/10" />
+                <p className="font-display text-lg italic text-white">{typeData.name}</p>
+                <p className="mt-2 text-xs text-white/40">
+                  Biggest gap: {topGap?.emoji} {topGap?.label}
+                </p>
+                <p className="mt-3 text-xs text-white/20">livetruescore.vercel.app</p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <Button
+                variant="secondary"
+                fullWidth
+                className="rounded-xl py-3"
+                onClick={async () => {
+                  const shareText =
+                    `My Life Alignment Score: ${score}/100\n` +
+                    `I am a ${typeData.name} - ${typeData.tagline}\n` +
+                    `Biggest gap: ${topGaps[0]?.label}\n\n` +
+                    `Kind of uncomfortably accurate.\n` +
+                    `Find out yours: livetruescore.vercel.app`;
+
+                  if (navigator.share) {
+                    await navigator.share({
+                      title: "My Life Alignment Score",
+                      text: shareText
+                    });
+                    return;
+                  }
+
+                  await navigator.clipboard.writeText(shareText);
+                  setShareCopied(true);
+                  window.setTimeout(() => setShareCopied(false), 2500);
+                }}
+              >
+                <Share2 className="mr-2 h-4 w-4" />
+                {shareCopied ? "Copied to clipboard" : "Share my score"}
+              </Button>
+              <p className="mt-2 text-center text-xs text-brand-muted">
+                Share because it resonated, not because you have to.
+              </p>
+            </div>
           </motion.section>
 
           <motion.section
