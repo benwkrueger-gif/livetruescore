@@ -3,7 +3,16 @@
 import { useMemo, useReducer, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowDown, ArrowRight, ArrowUp, Check, Loader2 } from "lucide-react";
+import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent
+} from "@dnd-kit/core";
+import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { GripVertical, ArrowRight, Check, Loader2 } from "lucide-react";
 import { QuizShell } from "@/components/quiz/QuizShell";
 import { QuestionSlider } from "@/components/quiz/QuestionSlider";
 import { QuestionSelect } from "@/components/quiz/QuestionSelect";
@@ -97,12 +106,41 @@ function reducer(state: LocalQuizState, action: Action): LocalQuizState {
   }
 }
 
-function moveItem<T>(arr: T[], index: number, dir: -1 | 1): T[] {
-  const next = [...arr];
-  const swapIndex = index + dir;
-  if (swapIndex < 0 || swapIndex >= arr.length) return arr;
-  [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
-  return next;
+function SortableRankCard({
+  id,
+  label,
+  rank
+}: {
+  id: string;
+  label: string;
+  rank: number;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: transform
+      ? `translate3d(${transform.x}px, ${transform.y}px, 0) scale(${isDragging ? 1.02 : 1})`
+      : undefined,
+    transition
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={cn(
+        "flex cursor-grab items-center gap-3 rounded-2xl border border-brand-rule bg-brand-cream px-4 py-3 active:cursor-grabbing",
+        isDragging ? "shadow-strong" : "shadow-none"
+      )}
+    >
+      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-amber text-sm text-white">
+        {rank}
+      </span>
+      <span className="flex-1 font-medium text-brand-midnight">{label}</span>
+      <GripVertical className="h-4 w-4 text-brand-muted" />
+    </div>
+  );
 }
 
 export default function QuizPage() {
@@ -113,10 +151,7 @@ export default function QuizPage() {
   const directionRef = useRef<1 | -1>(1);
   const router = useRouter();
 
-  const selectedValueObjects = useMemo(
-    () => state.valuesSelected.map((key) => VALUES.find((item) => item.key === key)).filter(Boolean),
-    [state.valuesSelected]
-  );
+  const sensors = useSensors(useSensor(PointerSensor));
 
   const rankedTop3 = useMemo(
     () => (state.valuesRanked.length ? state.valuesRanked.slice(0, 3) : []),
@@ -159,6 +194,35 @@ export default function QuizPage() {
     const resequenced = nextTop3.map((item, index) => ({ ...item, rank: (index + 1) as 1 | 2 | 3 }));
     const next = fourth ? [...resequenced, { ...fourth, rank: 4 }] : resequenced;
     dispatch({ type: "SET_VALUES_RANKED", value: next as RankedValue[] });
+  };
+
+  const reorderRankedValues = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = state.valuesRanked.findIndex((item) => item.key === active.id);
+    const newIndex = state.valuesRanked.findIndex((item) => item.key === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+
+    const moved = arrayMove(state.valuesRanked, oldIndex, newIndex).map((item, index) => ({
+      ...item,
+      rank: (index + 1) as 1 | 2 | 3 | 4
+    }));
+    dispatch({ type: "SET_VALUES_RANKED", value: moved });
+  };
+
+  const reorderTop3 = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const top3 = state.valuesRanked.slice(0, 3);
+    const oldIndex = top3.findIndex((item) => item.key === active.id);
+    const newIndex = top3.findIndex((item) => item.key === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+
+    const moved = arrayMove(top3, oldIndex, newIndex).map((item, index) => ({
+      ...item,
+      rank: (index + 1) as 1 | 2 | 3
+    })) as RankedValue[];
+    updateTop3Order(moved);
   };
 
   const handleSubmit = async () => {
@@ -269,7 +333,7 @@ export default function QuizPage() {
             <div className="mt-4 grid grid-cols-2 gap-3">
               {VALUES.map((item) => {
                 const selected = state.valuesSelected.includes(item.key);
-                  const atLimit = state.valuesSelected.length >= 4;
+                const atLimit = state.valuesSelected.length >= 4;
                 const dim = atLimit && !selected;
                 return (
                   <button
@@ -334,42 +398,15 @@ export default function QuizPage() {
             Now put them in order.
           </h2>
           <p className="mt-2 text-brand-muted">Drag to rank - #1 is what matters most.</p>
-          <motion.div layout className="mt-6 space-y-3">
-            {ranked.map((item, index) => (
-              <motion.div
-                layout
-                key={item.key}
-                className="flex items-center gap-3 rounded-2xl border border-brand-rule bg-brand-cream px-4 py-3"
-              >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-amber text-sm text-white">
-                  {index + 1}
-                </span>
-                <span className="flex-1 font-medium text-brand-midnight">{item.label}</span>
-                <div className="flex gap-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      dispatch({ type: "SET_VALUES_RANKED", value: moveItem(ranked, index, -1) });
-                    }}
-                    disabled={index === 0}
-                    className="rounded-md border border-brand-rule p-1 disabled:opacity-30"
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      dispatch({ type: "SET_VALUES_RANKED", value: moveItem(ranked, index, 1) });
-                    }}
-                    disabled={index === ranked.length - 1}
-                    className="rounded-md border border-brand-rule p-1 disabled:opacity-30"
-                  >
-                    <ArrowDown className="h-4 w-4" />
-                  </button>
-                </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={reorderRankedValues}>
+            <SortableContext items={ranked.map((item) => item.key)} strategy={verticalListSortingStrategy}>
+              <motion.div layout className="mt-6 space-y-3">
+                {ranked.map((item, index) => (
+                  <SortableRankCard key={item.key} id={item.key} label={item.label} rank={index + 1} />
+                ))}
               </motion.div>
-            ))}
-          </motion.div>
+            </SortableContext>
+          </DndContext>
           <button
             type="button"
             className="mt-4 text-sm text-brand-muted hover:text-brand-ink-2"
@@ -436,38 +473,15 @@ export default function QuizPage() {
             You said these matter most to you.
           </h2>
           <p className="mt-2 text-brand-muted">Does this order feel right? Adjust if needed.</p>
-          <div className="mt-6 space-y-3">
-            {rankedTop3.map((item, index) => (
-              <motion.div
-                layout
-                key={item.key}
-                className="flex items-center gap-3 rounded-2xl border border-brand-rule bg-brand-cream px-4 py-3"
-              >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-amber text-sm text-white">
-                  {index + 1}
-                </span>
-                <span className="flex-1 font-medium text-brand-midnight">{item.label}</span>
-                <div className="flex gap-1">
-                  <button
-                    type="button"
-                    disabled={index === 0}
-                    onClick={() => updateTop3Order(moveItem(rankedTop3, index, -1))}
-                    className="rounded-md border border-brand-rule p-1 disabled:opacity-30"
-                  >
-                    <ArrowUp className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    disabled={index === rankedTop3.length - 1}
-                    onClick={() => updateTop3Order(moveItem(rankedTop3, index, 1))}
-                    className="rounded-md border border-brand-rule p-1 disabled:opacity-30"
-                  >
-                    <ArrowDown className="h-4 w-4" />
-                  </button>
-                </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={reorderTop3}>
+            <SortableContext items={rankedTop3.map((item) => item.key)} strategy={verticalListSortingStrategy}>
+              <motion.div layout className="mt-6 space-y-3">
+                {rankedTop3.map((item, index) => (
+                  <SortableRankCard key={item.key} id={item.key} label={item.label} rank={index + 1} />
+                ))}
               </motion.div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
           <Button size="lg" fullWidth className="mt-6" onClick={goNext} showArrow>
             Looks right
           </Button>
@@ -609,8 +623,14 @@ export default function QuizPage() {
             { key: "partner_family", label: "My partner or family" },
             { key: "peers", label: "My peers and social circle" },
             { key: "society", label: "Society / culture broadly" },
-            { key: "past_self", label: "My past self and decisions I feel locked into" },
-            { key: "own_voice", label: "Honestly, mostly my own voice" }
+            {
+              key: "past_decisions",
+              label: "Decisions I made years ago that I feel locked into now"
+            },
+            {
+              key: "inner_critic",
+              label: "My own inner critic - the standards and expectations I hold myself to"
+            }
           ]}
           value={state.influenceSource}
           onChange={(value) => dispatch({ type: "SET_INFLUENCE", value })}
@@ -647,15 +667,25 @@ export default function QuizPage() {
     return (
       <div className="min-h-screen bg-brand-midnight px-5 py-12 text-white">
         <div className="mx-auto w-full max-w-lg text-center">
-          <motion.div
-            animate={{ scale: [1, 1.06, 1] }}
-            transition={{ duration: 2.1, repeat: Infinity }}
-            className="mx-auto h-20 w-20 rounded-full bg-brand-amber shadow-amber-strong"
-          />
+          <div className="relative mx-auto flex h-20 w-20 items-center justify-center">
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 border-brand-amber/50"
+              animate={{ scale: [1, 1.8], opacity: [0.6, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+            />
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 border-brand-amber/30"
+              animate={{ scale: [1, 1.8], opacity: [0.6, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeOut", delay: 0.75 }}
+            />
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-amber">
+              <span className="text-2xl font-bold text-white">✓</span>
+            </div>
+          </div>
           <h2 className="mt-8 font-display text-4xl">Your Life Alignment Score is ready.</h2>
           <p className="mx-auto mt-4 max-w-md leading-relaxed text-white/70">
-            Enter your name and email to see your score, your alignment type, and the 3 areas where your
-            life has quietly drifted from what matters most to you.
+            Enter your details to see your score, your alignment type, and the #1 area where your life has
+            quietly drifted from what matters most to you.
           </p>
           <div className="mt-8 space-y-4 text-left">
             <div>
@@ -699,7 +729,7 @@ export default function QuizPage() {
                 onChange={() => dispatch({ type: "TOGGLE_NEWSLETTER" })}
                 className="mt-1 accent-brand-amber"
               />
-              <span>Send me one free weekly micro-experiment to start closing my gap.</span>
+              <span>Send me a free weekly micro-experiment to start closing my gap.</span>
             </label>
             <Button size="lg" fullWidth onClick={handleSubmit} disabled={isSubmitting}>
               {isSubmitting ? (

@@ -31,11 +31,9 @@ export const VALUES: ValueDefinition[] = [
   },
   { key: "learning_growth", label: "Learning & growth", arenaMapping: "work" },
   { key: "play_humor", label: "Play & humor", arenaMapping: "play" },
-  { key: "simplicity", label: "Simplicity", arenaMapping: "freedom" },
   { key: "mastery", label: "Mastery", arenaMapping: "work" },
   { key: "recognition", label: "Recognition", arenaMapping: "work" },
   { key: "belonging", label: "Belonging", arenaMapping: "relationships" },
-  { key: "independence", label: "Independence", arenaMapping: "freedom" },
   {
     key: "health_vitality",
     label: "Health & vitality",

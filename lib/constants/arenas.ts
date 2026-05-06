@@ -15,7 +15,7 @@ export const ARENAS: ArenaDefinition[] = [
     label: "Work & Career",
     emoji: "💼",
     question:
-      "When you think about your work, how often does it feel like something you chose — rather than something that just happened to you?",
+      "When you think about your work, how often does it feel like something you chose, rather than something that just happened to you?",
     scaleMin: "Rarely mine",
     scaleMax: "Fully mine"
   },
@@ -23,7 +23,7 @@ export const ARENAS: ArenaDefinition[] = [
     key: "financial",
     label: "Financial Security",
     emoji: "💰",
-    question: "How settled do you feel about money — not rich, just not worried?",
+    question: "How settled do you feel about money, not rich, just not worried?",
     scaleMin: "Constant worry",
     scaleMax: "Solid foundation"
   },
@@ -67,7 +67,7 @@ export const ARENAS: ArenaDefinition[] = [
     label: "Creative Expression",
     emoji: "🎨",
     question:
-      "How often do you make or create something — anything — just because you wanted to?",
+      "How often do you make or create something, anything, just because you wanted to?",
     scaleMin: "Almost never",
     scaleMax: "Regularly"
   },
@@ -76,7 +76,7 @@ export const ARENAS: ArenaDefinition[] = [
     label: "Contribution & Meaning",
     emoji: "🌍",
     question:
-      "How often do you go to bed feeling like today mattered — that something you did made a real difference?",
+      "How often do you go to bed feeling like today mattered, that something you did made a real difference?",
     scaleMin: "Rarely",
     scaleMax: "Most days"
   }
