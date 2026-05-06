@@ -23,9 +23,9 @@ export function Hero() {
             <span className="block">living a life</span>
             <span className="block italic text-brand-amber">that&apos;s mostly theirs.</span>
           </h1>
-          <p className="mt-6 max-w-md text-lg leading-relaxed text-brand-ink-2">
+          <p className="mt-6 max-w-sm text-balance text-lg leading-relaxed text-brand-ink-2">
             The Life Alignment Score measures the gap between what you actually value and how
-            you&apos;re actually living — in 5 minutes. Free. No coaching call on the other end.
+            you&apos;re actually living, in 5 minutes. Free. No coaching call on the other end.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -34,14 +34,6 @@ export function Hero() {
                 Get Your Free Score
               </Button>
             </Link>
-            <div className="flex items-center gap-3">
-              <div className="flex -space-x-2">
-                <span className="h-7 w-7 rounded-full border-2 border-brand-cream bg-brand-amber-light" />
-                <span className="h-7 w-7 rounded-full border-2 border-brand-cream bg-brand-cream-dark" />
-                <span className="h-7 w-7 rounded-full border-2 border-brand-cream bg-brand-rule" />
-              </div>
-              <p className="text-sm text-brand-muted">Join 0 others who&apos;ve taken it</p>
-            </div>
           </div>
 
           <div className="mt-8 flex flex-wrap gap-6 text-sm text-brand-muted">
@@ -83,8 +75,11 @@ export function Hero() {
               ].map((item) => (
                 <div key={item.label}>
                   <p className="mb-1 text-xs text-brand-muted">{item.label}</p>
-                  <div className="h-1.5 w-full rounded-full bg-brand-rule">
-                    <div className="h-1.5 rounded-full bg-brand-amber" style={{ width: item.width }} />
+                  <div className="h-2 w-full rounded-full bg-gray-200">
+                    <div
+                      className="h-2 rounded-full bg-brand-amber/95"
+                      style={{ width: item.width }}
+                    />
                   </div>
                 </div>
               ))}

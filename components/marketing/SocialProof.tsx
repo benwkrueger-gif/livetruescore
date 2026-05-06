@@ -28,9 +28,6 @@ export function SocialProof() {
       transition={{ duration: 0.5, delay: 0.1 }}
       className="relative w-full bg-brand-cream px-6 py-20 md:px-10"
     >
-      <div className="pointer-events-none absolute left-4 top-2 select-none font-display text-[120px] leading-none text-brand-amber/15 md:left-16">
-        &ldquo;
-      </div>
       <div className="mx-auto grid max-w-6xl grid-flow-col auto-cols-[88%] gap-6 overflow-x-auto pb-2 md:grid-flow-row md:auto-cols-auto md:grid-cols-3 md:overflow-visible">
         {TESTIMONIALS.map((item) => {
           const initial = item.author.charAt(0);

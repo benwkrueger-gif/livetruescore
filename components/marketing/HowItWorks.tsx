@@ -50,7 +50,7 @@ export function HowItWorks() {
           {STEPS.map((item) => (
             <article
               key={item.step}
-              className="rounded-2xl bg-white p-8 shadow-soft transition-shadow duration-300 hover:shadow-medium"
+              className="rounded-2xl border-t-2 border-brand-amber/30 bg-white p-8 shadow-soft transition-shadow duration-300 hover:shadow-medium"
             >
               <p className="font-display text-6xl font-bold leading-none text-brand-amber/20">
                 {item.step}

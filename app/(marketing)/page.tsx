@@ -31,10 +31,14 @@ export default function LandingPage() {
               THE #1 DEATHBED REGRET
             </span>
           </div>
-          <h2 className="mt-6 text-balance font-display text-4xl font-normal leading-[1.2] text-white md:text-5xl">
-            They didn&apos;t live true to themselves.
+          <h2 className="mt-6 text-balance font-display text-4xl italic leading-[1.2] text-white md:text-5xl">
+            I wish I&apos;d had the courage to live a life true to myself, not the life others
+            expected of me.
           </h2>
-          <p className="mx-auto mt-4 max-w-lg text-lg leading-relaxed text-white/60">
+          <p className="mt-2 text-sm text-white/40">
+            - The most common regret reported by people in their final days
+          </p>
+          <p className="mx-auto mt-6 max-w-lg text-lg leading-relaxed text-white/60">
             Find out where you stand. Free. Takes 5 minutes.
           </p>
           <div className="mx-auto mt-10 max-w-sm">
