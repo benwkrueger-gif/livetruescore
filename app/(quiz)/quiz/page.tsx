@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useReducer, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowDown, ArrowRight, ArrowUp, Check, Loader2 } from "lucide-react";
 import { QuizShell } from "@/components/quiz/QuizShell";
@@ -112,7 +112,6 @@ export default function QuizPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const directionRef = useRef<1 | -1>(1);
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const selectedValueObjects = useMemo(
     () => state.valuesSelected.map((key) => VALUES.find((item) => item.key === key)).filter(Boolean),
@@ -180,6 +179,9 @@ export default function QuizPage() {
     setContactErrors({});
     setIsSubmitting(true);
     try {
+      const params =
+        typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
+
       const payload = {
         firstName,
         email,
@@ -194,9 +196,9 @@ export default function QuizPage() {
         deferredDreamOther: state.deferredDreamOther,
         influenceSource: state.influenceSource,
         futureVision: state.futureVision,
-        utmSource: searchParams.get("utm_source"),
-        utmMedium: searchParams.get("utm_medium"),
-        utmCampaign: searchParams.get("utm_campaign"),
+        utmSource: params.get("utm_source"),
+        utmMedium: params.get("utm_medium"),
+        utmCampaign: params.get("utm_campaign"),
         referrer: typeof document !== "undefined" ? document.referrer : null
       };
 
