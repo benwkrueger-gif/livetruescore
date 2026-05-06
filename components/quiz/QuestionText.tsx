@@ -9,6 +9,7 @@ interface QuestionTextProps {
   onSkip: () => void;
   placeholder: string;
   skipLabel: string;
+  nextLabel?: string;
 }
 
 export function QuestionText({
@@ -17,7 +18,8 @@ export function QuestionText({
   onNext,
   onSkip,
   placeholder,
-  skipLabel
+  skipLabel,
+  nextLabel = "Next"
 }: QuestionTextProps) {
   return (
     <div className="rounded-3xl border border-brand-rule bg-white p-6 shadow-soft md:p-8">
@@ -34,7 +36,7 @@ export function QuestionText({
       />
       <p className="mt-2 text-right text-xs text-brand-muted">{value.length} / 500</p>
       <Button size="lg" fullWidth className="mt-5" onClick={onNext} showArrow>
-        Next
+        {nextLabel}
       </Button>
       <button type="button" onClick={onSkip} className="mt-4 text-xs text-brand-muted hover:text-brand-ink-2">
         {skipLabel}

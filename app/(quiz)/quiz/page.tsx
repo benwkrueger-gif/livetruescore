@@ -456,7 +456,7 @@ export default function QuizPage() {
           value={state.permissionOrientation}
           onChange={(value) => dispatch({ type: "SET_PERMISSION", value: value as "A" | "B" | "C" | "D" })}
           onNext={goNext}
-          nextLabel="See my score"
+          nextLabel="Next"
         />
       );
     }
@@ -606,6 +606,7 @@ export default function QuizPage() {
                 dispatch({ type: "SET_FUTURE_VISION", value: "" });
                 goNext();
               }}
+              nextLabel="See my score"
               placeholder="Think less about achievements and more about how you'd feel day to day..."
               skipLabel="Skip this one →"
             />
