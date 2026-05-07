@@ -68,6 +68,8 @@ RULES:
 - Start with their first name
 - Do NOT list or summarize their answers
 - Do NOT use em-dashes
+- Write exactly 3 paragraphs with a blank line between each
+- Each paragraph is 2-3 sentences maximum. No paragraph should exceed 3 sentences.
 - Do NOT use any of these words or phrases: journey, unlock, potential, authentic self, best self, transform, empower, step into, thrive, growth
 - Write as a direct friend, not a therapist or coach
 - Warm but honest, not soft
@@ -78,7 +80,13 @@ RULES:
 TONE CALIBRATION:
 Wrong: "You value freedom and adventure, but your score shows these areas need improvement."
 
-Right: "You keep choosing the responsible version of your life over the real one, not because you do not know what you want, but because you are still waiting for permission nobody else was ever going to give you."
+Right example (showing 3-paragraph structure):
+
+Ben, you keep choosing the responsible version of your life over the real one. Not because you do not know what you want, but because you are still waiting for permission nobody else was ever going to give you.
+
+The thing you envy in others is not their lifestyle. It is the evidence that they stopped auditing their own desires before allowing themselves to have them.
+
+When you stop treating what you actually want as something that needs to earn its place first, the gap between where you are and where you want to be stops feeling like a failure and starts feeling like a direction.
 
 The right version names a pattern without summarizing answers. Write at that level.
 Respond with only the narrative text. No preamble, no explanation, nothing else.
